@@ -36,11 +36,10 @@ type Maintainers struct {
 var id int = 0
 var applications map[int]Application
 
-func getMetaData(w http.ResponseWriter, r *http.Request){
-
-	queries:= r.URL.Query()
+func getMetaData(w http.ResponseWriter, r *http.Request) {
+	queries := r.URL.Query()
 	resp := make([]Application, 0, 10)
-	
+
 	for k, v := range queries {
 		filterApplications(&resp, k, v[0])
 	}
@@ -54,18 +53,18 @@ func getMetaData(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	w.Write(jsonResp)
 }
 
-func postMetaData(w http.ResponseWriter, r *http.Request){
+func postMetaData(w http.ResponseWriter, r *http.Request) {
 	var payload Application
 	bytes, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	if yaml.Unmarshal(bytes, &payload) != nil {
 		log.Fatalln(err)
 	}
@@ -87,21 +86,22 @@ func postMetaData(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-func metaData(w http.ResponseWriter, r *http.Request){
+func metaData(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-		case "GET":
-			getMetaData(w, r)
-		case "POST":
-			postMetaData(w, r)
+	case "GET":
+		getMetaData(w, r)
+	case "POST":
+		postMetaData(w, r)
 	}
 }
 
-func retreiveApplication(w http.ResponseWriter, r *http.Request){
+func retreiveApplication(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-    id, valid := vars["id"]
-    if !valid {
-        w.WriteHeader(http.StatusBadRequest)
-    } else {
+	id, valid := vars["id"]
+
+	if !valid {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
 		id, err := strconv.Atoi(id)
 
 		if err != nil {
@@ -122,10 +122,10 @@ func retreiveApplication(w http.ResponseWriter, r *http.Request){
 
 func handleRequests() {
 	r := mux.NewRouter()
-    r.HandleFunc("/application", metaData)
+	r.HandleFunc("/application", metaData)
 	r.HandleFunc("/application/{id}/", retreiveApplication)
 
-    log.Fatal(http.ListenAndServe(":8081", r))
+	log.Fatal(http.ListenAndServe(":8081", r))
 }
 
 func main() {
